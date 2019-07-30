@@ -87,7 +87,7 @@ int tempo_control;
 int current_root = 1;
 int current_mode = 0;
 
-const float NOTE_MULT = 1.059463094359;
+const float NOTE_MULT = 1.059463094359; // 1 semitone in Hz, used to set root note
 
                    //a     a#      b        c       c#      d       d#      e       f       f#      g      g#
 float notes[24] = {110.0, 116.54, 123.47, 130.81, 138.59, 146.83, 155.56, 164.81, 174.61, 185.0, 196.0, 207.65,
