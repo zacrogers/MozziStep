@@ -11,13 +11,13 @@ check the README or http://sensorium.github.com/Mozzi/
 #include <ADSR.h>
 #include <Metronome.h>
 #include <mozzi_rand.h>
-#include <tables/sin2048_int8.h> // sine table for oscillator
+#include <tables/sin2048_int8.h> 
 #include <tables/square_no_alias_2048_int8.h>
 #include <tables/saw2048_int8.h>
 #include <tables/triangle2048_int8.h>
 #include "muxlib.h"
 
-#define MUX_MASK B11100011
+#define MUX_MASK B11100011 // For clearing bits of LED mux before setting select lines
 
 // use: Oscil <table_size, update_rate> oscilName (wavetable), look in .h file of table #included above
 /* Oscillators */
