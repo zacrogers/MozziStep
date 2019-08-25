@@ -21,73 +21,68 @@ check the README or http://sensorium.github.com/Mozzi/
 
 // use: Oscil <table_size, update_rate> oscilName (wavetable), look in .h file of table #included above
 /* Oscillators */
-Oscil <SIN2048_NUM_CELLS, AUDIO_RATE> aSin(SIN2048_DATA);
+Oscil <SIN2048_NUM_CELLS, AUDIO_RATE>              aSin(SIN2048_DATA);
 Oscil <SQUARE_NO_ALIAS_2048_NUM_CELLS, AUDIO_RATE> aSqu(SQUARE_NO_ALIAS_2048_DATA);
-Oscil <SAW2048_NUM_CELLS, AUDIO_RATE> aSaw(SAW2048_DATA);
-Oscil <TRIANGLE2048_NUM_CELLS, AUDIO_RATE> aTri(TRIANGLE2048_DATA);
+Oscil <SAW2048_NUM_CELLS, AUDIO_RATE>              aSaw(SAW2048_DATA);
+Oscil <TRIANGLE2048_NUM_CELLS, AUDIO_RATE>         aTri(TRIANGLE2048_DATA);
+ADSR  <CONTROL_RATE, CONTROL_RATE>                 envelope;
 
-ADSR <CONTROL_RATE, CONTROL_RATE> envelope;
 unsigned int duration, attack, decay, sustain, release_ms;
                                         
 //Potentiometers
-const char INPUT_PIN = 5; // set the input for the knob to analog pin 0
-const char TEMPO_POT = 6;
+const char INPUT_PIN     = 5; // set the input for the knob to analog pin 0
+const char TEMPO_POT     = 6;
 const char FREQ_POT;
 
 // LED pins
-const char MUX_S0 = A4; //Mux select for leds
-const char MUX_S1 = A3;
-const char MUX_S2 = A2;
+const char MUX_S0        = A4; //Mux select for leds
+const char MUX_S1        = A3;
+const char MUX_S2        = A2;
 
 const char STEP_EVEN_LED = A0;
-const char STEP_ODD_LED = A1;
+const char STEP_ODD_LED  = A1;
 
-const char OCT_LED = A7;
-const char OCT2X_LED = 2;
+const char OCT_LED       = A7;
+const char OCT2X_LED     = 2;
 
 //Buttons
-const char BTN_1 = 7;     // Set step 0/1
-const char BTN_2 = 6;     // Set step 2/3
-const char BTN_3 = 5;     // Set step 4/5
-const char BTN_4 = 4;     // Set step 6/7
-const char SEQ_TOG = 3;   // Toggle odd/even indexes of sequence
-const char OCT_TOG = 10;  // Toggle octave
-const char OSC_SEL = 8;   // Select oscillator
-const char MODE_SEL = 11; // Select mode
-const char ROOT_SEL = 12; // Select root note
+const char BTN_1         = 7;     // Set step 0/1
+const char BTN_2         = 6;     // Set step 2/3
+const char BTN_3         = 5;     // Set step 4/5
+const char BTN_4         = 4;     // Set step 6/7
+const char SEQ_TOG       = 3;   // Toggle odd/even indexes of sequence
+const char OCT_TOG       = 10;  // Toggle octave
+const char OSC_SEL       = 8;   // Select oscillator
+const char MODE_SEL      = 11; // Select mode
+const char ROOT_SEL      = 12; // Select root note
 
 // Constants
-const char MAX_OCT = 1;
-const char MIN_OCT = 2;
-const int MAX_TEMPO = 500;
-const int MIN_TEMPO = 150;
-const int SEQ_LENGTH = 8;
+const char  MAX_OCT       = 1;
+const char  MIN_OCT       = 2;
+const int   MAX_TEMPO     = 500;
+const int   MIN_TEMPO     = 150;
+const int   SEQ_LENGTH    = 8;
+const float NOTE_MULT     = 1.059463094359; // 1 semitone in Hz, used to set root note
 
 // Variables
-int tog_btn;
-int oct_btn;
-int osc_btn;
-int mode_btn;
-int root_btn;
-//int btn1;
-//int btn2;
-//int btn3;
-//int btn4;
+int   tog_btn;
+int   oct_btn;
+int   osc_btn;
+int   mode_btn;
+int   root_btn;
 
-bool oct_tog = false;   // Octave toggle state
-bool seq_even = false;  // Odd / Even indexes of sequence
-int freq = 440;
-int tempo = 200;
-int seq_point = 0;
-int myNote;
+bool  oct_tog            = false;   // Octave toggle state
+bool  seq_even           = false;  // Odd / Even indexes of sequence
+int   freq               = 440;
+int   tempo              = 200;
+int   seq_point          = 0;
+int   myNote;
 float note;
-int freq_control;
-int tempo_control;
+int   freq_control;
+int   tempo_control;
 
-int current_root = 1;
-int current_mode = 0;
-
-const float NOTE_MULT = 1.059463094359; // 1 semitone in Hz, used to set root note
+int   current_root       = 1;
+int   current_mode       = 0;
 
                    //a     a#      b        c       c#      d       d#      e       f       f#      g      g#
 float notes[24] = {110.0, 116.54, 123.47, 130.81, 138.59, 146.83, 155.56, 164.81, 174.61, 185.0, 196.0, 207.65,
@@ -123,12 +118,12 @@ byte gain;
 
 void setup(){
     mux.enable = INACTIVE;
-    mux.msize = 8;
-    mux.s0 = MUX_S0;
-    mux.s1 = MUX_S1;
-    mux.s2 = MUX_S2;
+    mux.msize  = 8;
+    mux.s0     = MUX_S0;
+    mux.s1     = MUX_S1;
+    mux.s2     = MUX_S2;
 
-    osc = current_osc;
+    osc        = current_osc;
 
     // set initial mode and root
 //    set_mode(current_mode);
@@ -140,24 +135,24 @@ void setup(){
 
     //Serial.begin(9600); // for Teensy 3.1, beware printout can cause glitches
     Serial.begin(115200); // set up the Serial output so we can look at the piezo values // set up the Serial output so we can look at the input values
-    pinMode(BTN_1, INPUT);
-    pinMode(BTN_2, INPUT);  
-    pinMode(BTN_3, INPUT);
-    pinMode(BTN_4, INPUT);
-    pinMode(SEQ_TOG, INPUT);
-    pinMode(OCT_TOG, INPUT);
-    pinMode(OSC_SEL, INPUT);
-    pinMode(ROOT_SEL, INPUT);
-    pinMode(MODE_SEL, INPUT);
+    pinMode(BTN_1,         INPUT);
+    pinMode(BTN_2,         INPUT);  
+    pinMode(BTN_3,         INPUT);
+    pinMode(BTN_4,         INPUT);
+    pinMode(SEQ_TOG,       INPUT);
+    pinMode(OCT_TOG,       INPUT);
+    pinMode(OSC_SEL,       INPUT);
+    pinMode(ROOT_SEL,      INPUT);
+    pinMode(MODE_SEL,      INPUT);
     
-    pinMode(MUX_S0, OUTPUT);
-    pinMode(MUX_S1, OUTPUT);
-    pinMode(MUX_S2, OUTPUT);
+    pinMode(MUX_S0,        OUTPUT);
+    pinMode(MUX_S1,        OUTPUT);
+    pinMode(MUX_S2,        OUTPUT);
     // LED outputs
     pinMode(STEP_EVEN_LED, OUTPUT);
     pinMode(STEP_EVEN_LED, OUTPUT);
-    pinMode(OCT_LED, OUTPUT);
-    pinMode(OCT2X_LED, OUTPUT);
+    pinMode(OCT_LED,       OUTPUT);
+    pinMode(OCT2X_LED,     OUTPUT);
 
     PORTC |= B00000010; // init step led
    
@@ -206,15 +201,15 @@ void updateControl(){
     }
     
     envelope.update();
-    gain = envelope.next();
+    gain     = envelope.next();
    
-    tog_btn = digitalRead(SEQ_TOG);
-    oct_btn = digitalRead(OCT_TOG);
-    osc_btn = digitalRead(OSC_SEL);
+    tog_btn  = digitalRead(SEQ_TOG);
+    oct_btn  = digitalRead(OCT_TOG);
+    osc_btn  = digitalRead(OSC_SEL);
     mode_btn = digitalRead(MODE_SEL);
     root_btn = digitalRead(ROOT_SEL);
 
-    myNote = current_mode_seq[freq];
+    myNote   = current_mode_seq[freq];
 
 //  Set odd indexes of sequence  
    if(!seq_even){
@@ -342,8 +337,7 @@ void set_root(){
     }
 }
 
-/* Set MUX select pins with registers*/
-/* MUX_MASK used to clear mux pins, without affecting others*/
+/* Set MUX select pins with registers. Clears, then sets mux pins */
 void set_mux(int seq_point){
     PORTC &= MUX_MASK;
     if(seq_point == 0){     //s0=0, s1=1, s2=0
